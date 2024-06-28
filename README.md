@@ -7,7 +7,7 @@
 - 只支持 TCP 协议的 http 请求，还不支持 UDP 下的 QUIC 协议。
 - 只支持不是最新版的 http 组件的 JA3 的模拟，无法模拟较新的 Chrome 浏览器等。
 - windows 下基于 go1.22.0 版本编译，linux 下基于 go.1.21.0 编译，目前只编译了 amd64 的版本。
-- 编译需要替换go的源码，go/src/crypto/tls，请先备份 go/src/crypto/tls 目录，再用 tls 目录下对应源码覆盖。
+- 编译需要替换 go 的源码，go/src/crypto/tls，请先备份 go/src/crypto/tls 目录，再将 change/change.exe 复制到 tls 目录运行即可。
 - 目前暂时只支持了 GET 和 POST 的请求，其他模式的请求还不支持。
 
 ## 文档
@@ -48,26 +48,36 @@
 }
 ```
 ### 返回数据结构
-返回数据分两种，status，multi，completed 接口返回 JSON 数据，single，download 接口直接返回 http 数据，如果有异常错误则在 http header 的 `Http Status` 以及 `HR-Error-Code`，`HR-Error-Message` 中返回。
-```
-{
-	// 错误信息
-	"error": {
-		// 错误代码
-		"code": 0,
-		// 错误描述
-		"message": ""
-	},
-	// 数据
-	"data": [data]
-}
-```
+- 返回数据分两种，status，multi，completed 接口返回 JSON 数据。
+  ```
+	{
+		// 错误信息
+		"error": {
+			// 错误代码
+			"code": 0,
+			// 错误描述
+			"message": ""
+		},
+		// 数据
+		"data": [data]
+	}
+  ```
+- single，download 接口直接返回 http 数据，如果有异常错误则在 http header 的 `Http Status` 以及 `HR-Error-Code`，`HR-Error-Message` 中返回。
 
 ### 接口
 **status** 查看状态
 - 请求模式：GET
 - 请求参数：无
-- 返回：`{"error":{"code":0,"message":""},"data":进程 pid}`
+- 返回：
+  ```
+	{
+		"error": {
+			"code": 0,
+			"message": ""
+		},
+		"data": 进程 pid
+	}
+  ```
 
 **single** 单次请求
 - 请求模式：POST
@@ -105,7 +115,16 @@
     ```
   - Content-Type 为 `application/x-www-form-urlencoded` 时，将 `请求数据结构` 每一项作为 Form 项传输，如果项的值非字符串则转为 JSON 后作为该项的值。
   - Content-Type 为 `application/json` 时，直接将 `请求参数` 用 JSON 传输。
-- 返回：`{"error":{"code":0,"message":""},"data":任务 id}`
+- 返回：
+  ```
+	{
+		"error": {
+			"code": 0,
+			"message": ""
+		},
+		"data": 任务 pid
+	}
+  ```
 - error.code：
   - 418：请求数据 JSON 解析错误。
   - 500：无法创建结果目录。
@@ -172,7 +191,16 @@
 - 请求模式：POST
 - 请求参数：
   - id：任务 id
-- 返回：`{"error":{"code":0,"message":""},"data":任务 id}`
+- 返回：
+  ```
+	{
+		"error": {
+			"code": 0,
+			"message": ""
+		},
+		"data": 任务 pid
+	}
+  ```
 - error.code：
   - 202：任务还在进行中，稍后再试。
   - 404：任务不存在或者任务数据已删除。
